@@ -109,6 +109,7 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
                                 <View style={{ flexDirection: 'row', }}>
                                     {
                                         audioPlayed ?
+
                                             <Icon name="pause-circle-o" size={20} color={isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPause(audiouri)} /> :
                                             //  pause-circle-o
                                             <Icon name="play-circle-o" size={20} color={isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPlay(audiouri)} />

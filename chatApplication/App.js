@@ -70,7 +70,6 @@ const App = () => {
       <UserContext.Provider value={user}>
         <HooksExample />
       </UserContext.Provider>
-
     </SafeAreaView>
 
   );

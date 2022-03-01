@@ -29,7 +29,6 @@ const Waveform = (props) => {
                         margin: 1,
                         backgroundColor: '#52624B'
                     }} />
-                    // <View style={{ height: `${p}%`, backgroundColor: 'blue', width: 10 }} key={`${p}-${i}`} />
                 ))
             }
 

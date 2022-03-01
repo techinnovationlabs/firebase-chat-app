@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef, useContext, useEffect } from 'react'
-import { View, TextInput, Text, Alert, PermissionsAndroid, TouchableOpacity } from 'react-native'
+import { View, TextInput, Text, Alert, PermissionsAndroid, TouchableOpacity, Image } from 'react-native'
 // State
 import { UserContext } from '../../context';
 // Services
@@ -84,9 +84,7 @@ export default function Input() {
 
     async function uploadAudioFile(path, name) {
         setIsLoading(true)
-
         let reference = storage().ref(name);
-
         let task = await reference.putFile(path, {
             contentType: "audio/mpeg",
         });
@@ -145,7 +143,7 @@ export default function Input() {
                         )
                         // console.log("Time==>", value)
                         if (e.currentMetering === -160) {
-                            e.currentMetering = 0;
+                            e.currentMetering = 10;
                         }
                         let samples = e.currentMetering * -1
                         waveform.samples.push(samples)
@@ -244,58 +242,70 @@ export default function Input() {
     }
 
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ flex: 1, alignItems: 'center' }} >
-                <Text>Icon</Text>
-            </View>
-            <View style={{ flex: 6 }} >
-                <View style={styles.container}>
+        <>
+            {/* {
+                Iconstart ?
+                   : null
+            } */}
+
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: '2%' }}>
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: '3%', borderRadius: 10, borderColor: '#BBBBBB', borderWidth: 1 }} >
+                    <Image style={{ width: 25, }} source={require('../../../assets/images/Experience.png')} />
+                </View>
+                <View style={{ flex: 6 }} >
+                    <View style={styles.container}>
+                        {
+                            !Iconstart ?
+                                <View style={{ borderWidth: 1, flexDirection: 'row', alignItems: 'center', width: '90%', borderRadius: 10, paddingHorizontal: '2%', borderColor: '#BBBBBB' }}>
+                                    <TextInput
+                                        style={[styles.input, { flex: 1 }]}
+                                        value={message}
+                                        onChangeText={setMessage}
+                                        placeholder={"Message"} />
+                                    <TouchableOpacity onPress={handlePress}>
+                                        <Text style={{ color: '#52624B', fontWeight: 'bold' }} >Send</Text>
+                                    </TouchableOpacity>
+
+                                </View>
+                                :
+                                <View style={{ borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '90%', borderRadius: 10, borderColor: '#BBBBBB' }}>
+                                    <View >
+                                        <TouchableOpacity onPress={onCancelRecord}>
+                                            <Image style={{ width: 30, height: 30, marginLeft: '5%' }} source={require('../../../assets/images/Close.png')} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={{ flex: 1, }}>
+                                        <Waveform color="#52624B"  {...{ waveform }} />
+                                    </View>
+                                    <View>
+                                        <Text>{recordTime}</Text>
+                                    </View>
+                                </View>
+                        }
+                    </View>
+                </View>
+                <View style={{ marginTop: '1%', width: 40, alignItems: 'center', justifyContent: 'center', }}>
                     {
                         !Iconstart ?
-                            <View style={{ borderWidth: 1, flexDirection: 'row', alignItems: 'center', width: '100%' }}>
-                                <TextInput
-                                    style={[styles.input, { flex: 1 }]}
-                                    value={message}
-                                    onChangeText={setMessage}
-                                    placeholder={"Message"} />
-                                <TouchableOpacity style={{ margin: 10 }} onPress={handlePress}>
-                                    <Text style={{ color: '#52624B', fontWeight: 'bold' }} >Send</Text>
-                                </TouchableOpacity>
+                            <View style={{ flex: 1, width: 40, alignSelf: 'center', marginBottom: '10%', borderRadius: 10, borderColor: '#BBBBBB', borderWidth: 1 }}>
+                                <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: '3%', }} onPress={onStartRecord}>
+                                    <Image style={{ width: 30, height: 30, }} source={require('../../../assets/images/Mic.png')} />
 
-                            </View>
-                            :
-                            <View style={{ borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '100%' }}>
-                                <View >
-                                    <TouchableOpacity onPress={onCancelRecord}>
-                                        <CancelIcon name="cancel" size={35} color="#52624B" />
+                                </TouchableOpacity>
+                            </View> :
+                            <View style={{ flex: 1, alignSelf: 'center', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: 70 }}>
+
+                                <View style={{ width: 40, height: 30, }} >
+                                    <TouchableOpacity style={{ borderWidth: 1, borderRadius: 10, borderColor: '#BBBBBB' }} onPress={onStopRecord} >
+                                        <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5, marginTop: 3 }} source={require('../../../assets/images/Send.png')} />
+                                        <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5 }} source={require('../../../assets/images/Play.png')} />
                                     </TouchableOpacity>
                                 </View>
-                                <View style={{ flex: 1, }}>
-                                    <Waveform color="#52624B"  {...{ waveform }} />
-                                </View>
-                                <View>
-                                    <Text>{recordTime}</Text>
-                                </View>
                             </View>
+
                     }
                 </View>
             </View>
-            <View style={{ marginTop: '1%' }}>
-                {
-                    !Iconstart ?
-                        <View style={{ flex: 1, alignSelf: 'center' }}>
-                            <TouchableOpacity onPress={onStartRecord}>
-                                <Icon name="mic-circle" size={35} color="#52624B" style={{ marginRight: '2%' }} />
-                            </TouchableOpacity>
-                        </View> :
-                        <View style={{ flex: 1, }}>
-                            <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }} onPress={onStopRecord} >
-                                <Icon name="mic-circle" size={40} color="#52624B" style={{ marginRight: '2%' }} />
-                            </TouchableOpacity>
-                        </View>
-                }
-
-            </View>
-        </View>
+        </>
     )
 }

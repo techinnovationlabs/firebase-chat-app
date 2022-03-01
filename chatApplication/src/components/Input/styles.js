@@ -15,7 +15,7 @@ export default StyleSheet.create({
         alignItems: 'center'
     },
     input: {
-        height: 40,
+        height: '20%',
         borderRadius: 3,
         flexDirection: 'row',
         paddingHorizontal: 10,

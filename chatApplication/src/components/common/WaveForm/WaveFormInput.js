@@ -6,10 +6,10 @@ import Svg, { Rect, } from 'react-native-svg';
 const WaveformInput = (props) => {
 
     const waveformobj = {
-        width: props.waveform.width,
-        height: props.waveform.height,
-        samples: props.waveform.samples,
-        color: props.color
+        width: props.waveform.width, // overall duration to width
+        height: props.waveform.height, // overall average to height
+        samples: props.waveform.samples, // samples 
+        color: props.color // colors on different chat
     }
 
     return (
@@ -28,10 +28,8 @@ const WaveformInput = (props) => {
                         margin: 1,
                         backgroundColor: '#52624B'
                     }} />
-                    // <View style={{ height: `${p}%`, backgroundColor: 'blue', width: 10 }} key={`${p}-${i}`} />
                 ))
             }
-
         </ScrollView>
     );
 }
