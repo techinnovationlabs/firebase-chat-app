@@ -15,28 +15,28 @@ const styles = StyleSheet.create({
         width: '40%',
         backgroundColor: '#52624B',
         borderRadius: 40,
-        height: 50,
+        height: '100%',
         paddingHorizontal: 15,
-        paddingVertical: 12,
+        paddingVertical: 10,
         marginLeft: 1
     },
     rightContainer: {
         justifyContent: 'flex-end'
     },
     rightTextContainer: {
-        backgroundColor: '#ddd',
+        backgroundColor: '#F2EEE7',
         borderColor: '#231B22',
         marginRight: 10,
         borderRadius: 999
     },
     leftText: {
         textAlign: 'left',
-        color: '#FFF'
+        color: '#231B22'
 
     },
     rightText: {
         textAlign: 'right',
-        color: '#231B22'
+        color: '#FFF'
     },
     text: {
         fontSize: 15,
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     imageRightContainer: {
         width: 160,
         height: 150,
-        backgroundColor: '#ddd',
+        backgroundColor: '#F2EEE7',
         borderRadius: 10,
         paddingHorizontal: 15,
         paddingVertical: 12,
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     imageTextcontainer: {
         width: '70%',
         height: '100%',
-        backgroundColor: '#ddd',
+        backgroundColor: '#F2EEE7',
         borderRadius: 10,
         backgroundColor: '#52624B',
         // paddingHorizontal: 15,

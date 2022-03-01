@@ -26,7 +26,7 @@ const ProfileComponent = () => {
             </View>
 
             <TouchableOpacity style={{ width: 50, height: 50, justifyContent: 'center', alignItems: 'center', flex: 1 }} >
-                <ThreeDotsIcon name="dots-three-horizontal" size={25} color='#ddd' />
+                <ThreeDotsIcon name="dots-three-horizontal" size={25} color='#F2EEE7' />
             </TouchableOpacity>
         </View>
     );

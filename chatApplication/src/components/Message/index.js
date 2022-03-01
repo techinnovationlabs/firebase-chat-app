@@ -22,10 +22,10 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
 
 
     const containerStyles = isLeftSide ? styles.container : flattenedStyles.container
-    const textContainerStyles = isLeftSide ? styles.textContainer : flattenedStyles.textContainer;
+    const textContainerStyles = !isLeftSide ? styles.textContainer : flattenedStyles.textContainer;
     const imageTextcontainer = isLeftSide ? styles.imageTextcontainer : styles.imageTextRightcontainer
-    const textStyles = isLeftSide ? flattenedStyles.leftText : flattenedStyles.rightText;
-    const imageContainer = isLeftSide ? styles.imageContainer : styles.imageRightContainer
+    const textStyles = !isLeftSide ? flattenedStyles.rightText : flattenedStyles.leftText;
+    const imageContainer = !isLeftSide ? styles.imageContainer : styles.imageRightContainer
 
 
     // Audio Playing Functionality
@@ -104,21 +104,31 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
                             />
                             <Text style={textStyles}>Someone Liked !!</Text>
                         </View> : audiouri ?
-                            <View style={[textContainerStyles, { alignItems: 'center', justifyContent: 'space-evenly', flexDirection: 'row' }]}>
+                            <View style={[textContainerStyles, { alignItems: 'center', justifyContent: 'space-evenly', flexDirection: 'row', width: '50%' }]}>
 
                                 <View style={{ flexDirection: 'row', }}>
                                     {
                                         audioPlayed ?
 
-                                            <Icon name="pause-circle-o" size={20} color={isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPause(audiouri)} /> :
-                                            //  pause-circle-o
-                                            <Icon name="play-circle-o" size={20} color={isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPlay(audiouri)} />
+                                            <Icon name="pause-circle-o" size={20} color={!isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPause(audiouri)} />
+                                            :
+                                            <>
+                                                {
+                                                    !isLeftSide ?
+                                                        <Image style={{ width: 30, height: 30, margin: '2%' }} source={require('../../../assets/images/Play1.png')} />
+                                                        :
+                                                        <Image style={{ width: 30, height: 30, margin: '2%' }} source={require('../../../assets/images/Play.png')} />
+                                                }
+
+                                            </>
+                                        //  pause-circle-o
+                                        // <Icon name="play-circle-o" size={20} color={!isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPlay(audiouri)} />
                                         //   play-circle-o
                                     }
 
                                 </View>
-                                <View style={{ flex: 1, }}>
-                                    <WaveformInput   {...{ waveform }} />
+                                <View style={{ flex: 1, alignItems: 'center' }}>
+                                    <WaveformInput isLeftSide={!isLeftSide}  {...{ waveform }} />
                                 </View>
 
                             </View> :

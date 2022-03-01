@@ -68,8 +68,6 @@ export default function Input() {
     }, [])
 
     const handlePress = async () => {
-
-
         // todo this
         await firebaseService.createMessage({ message, uid, imageSource, audiofile }).then(function () {
             setMessage('')
@@ -146,6 +144,7 @@ export default function Input() {
                             e.currentMetering = 10;
                         }
                         let samples = e.currentMetering * -1
+                        console.log(samples)
                         waveform.samples.push(samples)
                         setRecordtime(value)
                         return;
@@ -297,7 +296,7 @@ export default function Input() {
 
                                 <View style={{ width: 40, height: 30, }} >
                                     <View style={{ borderWidth: 1, borderRadius: 10, borderColor: '#BBBBBB' }} >
-                                        <TouchableOpacity>
+                                        <TouchableOpacity onPress={onStopRecord}>
                                             <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5, marginTop: 3 }} source={require('../../../assets/images/Send.png')} />
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={onStopRecord}>

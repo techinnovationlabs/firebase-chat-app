@@ -16,7 +16,7 @@ const WaveformInput = (props) => {
         <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ height: 50, display: 'flex', alignItems: 'center', flexDirection: 'row', paddingBottom: 20 }}
+            contentContainerStyle={{ display: 'flex', alignItems: 'center', flexDirection: 'row', }}
         >
             {
                 waveformobj.samples.map((p, i) => (
@@ -24,9 +24,9 @@ const WaveformInput = (props) => {
                         alignSelf: 'center',
                         width: 3,
                         borderRadius: 10,
-                        height: `${p}%`,
+                        height: `${p * 2}%`,
                         margin: 1,
-                        backgroundColor: '#52624B'
+                        backgroundColor: props.isLeftSide ? '#FFFFFF' : '#52624B'
                     }} />
                 ))
             }
