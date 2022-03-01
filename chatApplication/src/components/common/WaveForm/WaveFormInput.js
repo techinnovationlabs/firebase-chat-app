@@ -3,7 +3,7 @@ import { Text, View, ScrollView } from 'react-native';
 // import { StyleSheet, Dimensions, Animated,  } from 'react-native';
 import Svg, { Rect, } from 'react-native-svg';
 
-const Waveform = (props) => {
+const WaveformInput = (props) => {
 
     const waveformobj = {
         width: props.waveform.width,
@@ -14,10 +14,9 @@ const Waveform = (props) => {
 
     return (
         <ScrollView
-            ref={(ref) => flatListRef = ref}
             horizontal={true}
-            contentContainerStyle={{ height: 50, display: 'flex', alignItems: 'center', flexDirection: 'row' }}
-            onContentSizeChange={(width, height) => flatListRef.scrollToEnd({ animated: false })}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ height: 50, display: 'flex', alignItems: 'center', flexDirection: 'row', paddingBottom: 20 }}
         >
             {
                 waveformobj.samples.map((p, i) => (
@@ -37,4 +36,4 @@ const Waveform = (props) => {
     );
 }
 
-export default Waveform;
+export default WaveformInput;

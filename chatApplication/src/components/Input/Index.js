@@ -130,7 +130,7 @@ export default function Input() {
                     console.log(AudioSet)
                     const path = `${Platform.OS === "android" ? "/storage/emulated/0/Download" : RNFS.TemporaryDirectoryPath}/${((Math.random() * 1000) | 0)}.mp3`;
                     console.log("imagePath===>", path)
-                    const meteringEnabled = false;
+                    const meteringEnabled = true;
                     console.log("Patyh===>", path)
                     const uri = await audioRecorderPlayer.startRecorder(
                         path,
@@ -138,14 +138,17 @@ export default function Input() {
                         meteringEnabled
                     );
                     audioRecorderPlayer.addRecordBackListener((e) => {
-                        console.log("cureent==>", e)
-
+                        // console.log("cureent==>", e)
                         let value = audioRecorderPlayer.mmss(
+                            // console.log(e.currentPosition)
                             Math.floor(e.currentPosition)
                         )
-
-                        console.log("Time==>", value)
-                        waveform.samples.push(1 / e.currentPosition)
+                        // console.log("Time==>", value)
+                        if (e.currentMetering === -160) {
+                            e.currentMetering = 0;
+                        }
+                        let samples = e.currentMetering * -1
+                        waveform.samples.push(samples)
                         setRecordtime(value)
                         return;
 
@@ -169,12 +172,14 @@ export default function Input() {
         audioRecorderPlayer.removeRecordBackListener();
         setrecordSecs(0)
         setIconstart(!Iconstart)
+        // waveform.samples.length = 0;
         uploadAudioFile(result, 'hello')
         console.log("result===>", result);
     };
     const onCancelRecord = async () => {
         audioRecorderPlayer.removeRecordBackListener();
         setrecordSecs(0)
+        waveform.samples.length = 0;
         setIconstart(!Iconstart);
         setaudiofile('')
     }
@@ -265,7 +270,7 @@ export default function Input() {
                                         <CancelIcon name="cancel" size={35} color="#52624B" />
                                     </TouchableOpacity>
                                 </View>
-                                <View style={{ flex: 1 }}>
+                                <View style={{ flex: 1, }}>
                                     <Waveform color="#52624B"  {...{ waveform }} />
                                 </View>
                                 <View>

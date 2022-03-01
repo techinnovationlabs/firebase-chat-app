@@ -10,17 +10,16 @@ import Icon from 'react-native-vector-icons/dist/FontAwesome';
 import SoundCloudWaveform from 'react-native-soundcloud-waveform'
 import Waveform from '../common/WaveForm/WaveForm';
 import waveform from '../common/WaveForm/waveform.json'
+import WaveformInput from '../common/WaveForm/WaveFormInput';
 
 export default function Message({ message, side, imageUri, audiouri, post }) {
 
     const [audioPlayed, setaudioPlayed] = useState(false)
 
     const isLeftSide = side === 'left';
-    const [x, setxvalue] = useState(new Animated.Value(0));
 
-    const setXValue = (value) => {
-        setxvalue(value)
-    }
+
+
 
     const containerStyles = isLeftSide ? styles.container : flattenedStyles.container
     const textContainerStyles = isLeftSide ? styles.textContainer : flattenedStyles.textContainer;
@@ -107,7 +106,7 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
                         </View> : audiouri ?
                             <View style={[textContainerStyles, { alignItems: 'center', justifyContent: 'space-evenly', flexDirection: 'row' }]}>
 
-                                <View style={{ alignSelf: 'center' }}>
+                                <View style={{ flexDirection: 'row', }}>
                                     {
                                         audioPlayed ?
                                             <Icon name="pause-circle-o" size={20} color={isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPause(audiouri)} /> :
@@ -115,10 +114,10 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
                                             <Icon name="play-circle-o" size={20} color={isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPlay(audiouri)} />
                                         //   play-circle-o
                                     }
-                                </View>
-                                <View style={{ width: 50, marginRight: 40 }}>
-                                    <Waveform color="#52624B" setPrgress={setXValue} {...{ waveform }} />
 
+                                </View>
+                                <View style={{ flex: 1, }}>
+                                    <WaveformInput   {...{ waveform }} />
                                 </View>
 
                             </View> :
