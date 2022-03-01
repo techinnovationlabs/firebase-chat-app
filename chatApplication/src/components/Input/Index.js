@@ -296,10 +296,14 @@ export default function Input() {
                             <View style={{ flex: 1, alignSelf: 'center', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: 70 }}>
 
                                 <View style={{ width: 40, height: 30, }} >
-                                    <TouchableOpacity style={{ borderWidth: 1, borderRadius: 10, borderColor: '#BBBBBB' }} onPress={onStopRecord} >
-                                        <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5, marginTop: 3 }} source={require('../../../assets/images/Send.png')} />
-                                        <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5 }} source={require('../../../assets/images/Play.png')} />
-                                    </TouchableOpacity>
+                                    <View style={{ borderWidth: 1, borderRadius: 10, borderColor: '#BBBBBB' }} >
+                                        <TouchableOpacity>
+                                            <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5, marginTop: 3 }} source={require('../../../assets/images/Send.png')} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={onStopRecord}>
+                                            <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5 }} source={require('../../../assets/images/Play.png')} />
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
 
