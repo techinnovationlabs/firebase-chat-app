@@ -51,8 +51,11 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
         const msg = await audioRecorderPlayer.startPlayer(uri)
 
         console.log(msg)
-        audioRecorderPlayer.addPlayBackListener(async (e) => {
-            // console.log(e.duration)
+        audioRecorderPlayer.addPlayBackListener(async (e,) => {
+            console.log("index===>", e.currentPosition, e.duration)
+            let percent = e.currentPosition / e.duration * 100
+
+            console.log("percentage", percent)
             // console.log("current Position===>", e.currentPosition)
             setduration(e.duration)
         })
@@ -97,29 +100,31 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
                             />
                             <Text style={textStyles}>Someone Liked !!</Text>
                         </View> : audiouri ?
-                            <View style={[textContainerStyles, { alignItems: 'center', justifyContent: 'space-evenly', flexDirection: 'row', width: '50%' }]}>
+                            <View style={[textContainerStyles, { alignItems: 'flex-start', justifyContent: 'space-around', flexDirection: 'row', width: '50%' }]}>
+                                <View style={{ flex: 1, }} >
+                                    <View style={{ flexDirection: 'row', }}>
+                                        {
+                                            audioPlayed ?
 
-                                <View style={{ flexDirection: 'row', }}>
-                                    {
-                                        audioPlayed ?
+                                                <Icon name="pause-circle-o" size={20} color={!isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPause(audiouri)} />
+                                                :
+                                                <TouchableOpacity onPress={() => audioPlay(audiouri)} >
+                                                    {
+                                                        !isLeftSide ?
+                                                            <Image style={{ width: 30, height: 30, margin: '1%' }} source={require('../../../assets/images/Play1.png')} />
+                                                            :
+                                                            <Image style={{ width: 30, height: 30, margin: '1%' }} source={require('../../../assets/images/Play.png')} />
+                                                    }
+                                                </TouchableOpacity>
+                                        }
 
-                                            <Icon name="pause-circle-o" size={20} color={!isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPause(audiouri)} />
-                                            :
-                                            <TouchableOpacity onPress={() => audioPlay(audiouri)} >
-                                                {
-                                                    !isLeftSide ?
-                                                        <Image style={{ width: 30, height: 30, margin: '2%' }} source={require('../../../assets/images/Play1.png')} />
-                                                        :
-                                                        <Image style={{ width: 30, height: 30, margin: '2%' }} source={require('../../../assets/images/Play.png')} />
-                                                }
-
-                                            </TouchableOpacity>
-                                    }
-
+                                    </View>
                                 </View>
-                                <View style={{ flex: 1, alignItems: 'center' }}>
+
+                                <View style={{ flex: 3, height: '100%' }} >
                                     <WaveformInput isLeftSide={!isLeftSide} currentdurationPlaying={currentduration} playing={childRef}  {...{ waveform }} />
                                 </View>
+
 
                             </View> :
                             null
