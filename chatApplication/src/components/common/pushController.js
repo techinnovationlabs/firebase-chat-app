@@ -8,7 +8,6 @@ PushNotification.configure({
     onNotification: function (notification) {
         console.log('LOCAL NOTIFICATION ==>', notification);
     },
-
     popInitialNotification: true,
     requestPermissions: true,
 });

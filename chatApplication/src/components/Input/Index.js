@@ -1,17 +1,13 @@
 import React, { useCallback, useState, useRef, useContext, useEffect } from 'react'
-import { View, TextInput, Text, Alert, PermissionsAndroid, TouchableOpacity, Image } from 'react-native'
+import { View, TextInput, Text, Alert, PermissionsAndroid, TouchableOpacity, Image, Pressable } from 'react-native'
 // State
 import { UserContext } from '../../context';
 // Services
 import { firebaseService } from '../../services';
 import storage from '@react-native-firebase/storage';
-// Button and Input Component
-import Button from '../common/Button';
-import Icon from 'react-native-vector-icons/dist/Ionicons';
-import CancelIcon from 'react-native-vector-icons/dist/MaterialIcons';
+
 import styles from './styles';
-// Image Library
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+
 
 // Audio Recording
 import AudioRecorderPlayer, {
@@ -32,6 +28,12 @@ import waveform from '../common/WaveForm/waveform.json'
 const audioRecorderPlayer = new AudioRecorderPlayer();
 
 export default function Input() {
+    //   Icons
+    const MicIcon = '../../../assets/images/Mic.png';
+    const MessageIcon = '../../../assets/images/Send.png';
+    const PlayIcon = '../../../assets/images/Play.png';
+
+
     audioRecorderPlayer.setSubscriptionDuration(0.1);
 
     const { uid } = useContext(UserContext)
@@ -49,7 +51,8 @@ export default function Input() {
     const [recordSecs, setrecordSecs] = useState(0)
     const [audiofile, setaudiofile] = useState('')
     // States for UI
-    const [urlCreated, setUrlCreated] = useState(false)
+    const [urlCreated, setUrlCreated] = useState(false);
+    const [granted, setgranted] = useState(false)
 
     useEffect(() => {
         PushNotification.createChannel(
@@ -65,15 +68,25 @@ export default function Input() {
 
             (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
         );
-    }, [])
+    }, []);
+
+
+
+
 
     const handlePress = async () => {
         // todo this
-        await firebaseService.createMessage({ message, uid, imageSource, audiofile }).then(function () {
-            setMessage('')
-            setImagesource('')
-            setaudiofile('')
-        })
+        try {
+            await firebaseService.createMessage({ message, uid, imageSource, audiofile }).then(function () {
+                setMessage('')
+                setImagesource('')
+                setaudiofile('')
+            })
+
+        } catch (err) {
+            console.log(err, "Error")
+        }
+
 
     }
 
@@ -82,170 +95,150 @@ export default function Input() {
 
     async function uploadAudioFile(path, name) {
         setIsLoading(true)
-        let reference = storage().ref(name);
-        let task = await reference.putFile(path, {
-            contentType: "audio/mpeg",
-        });
-        console.log("referenceUrl===>", reference.path)
-        // geetingUrl
-        let url = await storage().ref(reference.path).getDownloadURL();
-        setIsLoading(false)
-        console.log("url===>", url)
-        setaudiofile(url)
+        if (path.length > 0) {
+
+            try {
+                let reference = storage().ref(name);
+                let task = await reference.putFile(path, {
+                    contentType: "audio/mpeg",
+                });
+                console.log("referenceUrl===>", reference.path)
+                // geetingUrl
+                let url = await storage().ref(reference.path).getDownloadURL();
+                setIsLoading(false)
+                console.log("url===>", url)
+                setaudiofile(url)
+
+            } catch (error) {
+                console.log(error)
+            }
+
+        }
+        console.log(path)
     }
 
 
+    const checkMicrophone = async () => {
+        try {
+            const result = await PermissionsAndroid.requestMultiple([
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+            ]);
+            console.log(result)
+            return result;
+
+        } catch (error) {
+            console.log(error)
+        }
+
+    };
+
+    useEffect(() => {
+        checkMicrophone().then(() => setgranted(true))
+    }, [])
+
     const onStartRecord = async () => {
         setIconstart(true);
-        if (Platform.OS === 'android') {
+        if (Platform.OS === 'android' && granted) {
             try {
-                const grants = await PermissionsAndroid.requestMultiple([
-                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-                    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-                ]);
+                const AudioSet = {
+                    AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+                    AudioSourceAndroid: AudioSourceAndroidType.MIC,
+                    AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
+                    AVNumberOfChannelsKeyIOS: 2,
+                    AVFormatIDKeyIOS: AVEncodingOption.aac,
+                };
 
-                console.log('write external stroage', grants);
+                const path = `${Platform.OS === "android" ? "/storage/emulated/0/Download" : RNFS.TemporaryDirectoryPath}/${12}.mp3`;
 
-                if (
+                const meteringEnabled = true;
 
-                    grants['android.permission.WRITE_EXTERNAL_STORAGE'] ===
-                    PermissionsAndroid.RESULTS.GRANTED &&
-                    grants['android.permission.READ_EXTERNAL_STORAGE'] ===
-                    PermissionsAndroid.RESULTS.GRANTED &&
-                    grants['android.permission.RECORD_AUDIO'] ===
-                    PermissionsAndroid.RESULTS.GRANTED
-                ) {
-                    const AudioSet = {
-                        AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
-                        AudioSourceAndroid: AudioSourceAndroidType.MIC,
-                        AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-                        AVNumberOfChannelsKeyIOS: 2,
-                        AVFormatIDKeyIOS: AVEncodingOption.aac,
-                    };
-                    console.log(AudioSet)
-                    const path = `${Platform.OS === "android" ? "/storage/emulated/0/Download" : RNFS.TemporaryDirectoryPath}/${((Math.random() * 1000) | 0)}.mp3`;
-                    console.log("imagePath===>", path)
-                    const meteringEnabled = true;
-                    console.log("Patyh===>", path)
-                    const uri = await audioRecorderPlayer.startRecorder(
-                        path,
-                        AudioSet,
-                        meteringEnabled
-                    );
-                    audioRecorderPlayer.addRecordBackListener((e) => {
-                        // console.log("cureent==>", e)
-                        let value = audioRecorderPlayer.mmss(
-                            // console.log(e.currentPosition)
-                            Math.floor(e.currentPosition)
-                        )
-                        // console.log("Time==>", value)
-                        if (e.currentMetering === -160) {
-                            e.currentMetering = 10;
-                        }
-                        let samples = e.currentMetering * -1
-                        console.log(samples)
-                        waveform.samples.push(samples)
-                        setRecordtime(value)
-                        return;
+                const uri = await audioRecorderPlayer.startRecorder(
+                    path,
+                    AudioSet,
+                    meteringEnabled
+                );
+                console.log("GivenURI===>", uri)
 
-                    })
-                    console.log('permissions granted', uri);
-                } else {
-                    console.log('All required permissions not granted');
+                audioRecorderPlayer.addRecordBackListener((e) => {
+                    // console.log("cureent==>", e)
+                    let value = audioRecorderPlayer.mmss(
+                        // console.log(e.currentPosition)
+                        Math.floor(e.currentPosition)
+                    )
+                    // console.log("Time==>", value)
+                    if (e.currentMetering === -160) {
+                        e.currentMetering = 10;
+                    }
+                    let samples = e.currentMetering * -1
+                    let obj = {
+                        duration: e.currentPosition,
+                        amplitude: samples
+                    }
+                    console.log(obj)
+                    waveform.samples.push(obj)
+
+                    setRecordtime(value)
                     return;
-                }
+
+                })
+                console.log('permissions granted', uri);
+
             } catch (err) {
+                setIconstart(false)
                 console.warn(err);
                 return;
             }
 
         }
     };
+    const audioPause = async (uri) => {
+        // setaudioPlayed(false);
+        await audioRecorderPlayer.pauseRecorder();
+    }
+
 
     const onStopRecord = async () => {
-
         const result = await audioRecorderPlayer.stopRecorder();
         audioRecorderPlayer.removeRecordBackListener();
         setrecordSecs(0)
         setIconstart(!Iconstart)
         // waveform.samples.length = 0;
-        uploadAudioFile(result, 'hello')
+        uploadAudioFile(result, 'hello').then(() => {
+            handlePress()
+        })
         console.log("result===>", result);
     };
+
     const onCancelRecord = async () => {
+        const result = await audioRecorderPlayer.stopRecorder();
         audioRecorderPlayer.removeRecordBackListener();
-        setrecordSecs(0)
+        setrecordSecs(0);
+        uploadAudioFile('', 'hello')
         waveform.samples.length = 0;
         setIconstart(!Iconstart);
-        setaudiofile('')
-    }
-
-
-    // ImageSending Package and Functionality
-
-    async function uploadImageToStorage(path, name) {
-        setIsLoading(true)
-        let reference = storage().ref(name);
-        let task = await reference.putFile(path);
-        console.log("referenceUrl===>", reference.path)
-        // geetingUrl
-        let url = await storage().ref(reference.path).getDownloadURL();
-        console.log("url===>", url)
-        setImagesource(url)
-        setIsLoading(false)
-    }
-
-
-
-    function getFileName(response) {
-        let path = response.assets.map((item) => item.uri)
-        if (Platform.OS === "ios") {
-            path = "~" + path[0].substring(path[0].indexOf("/Documents"));
+        setaudiofile('');
+        if (result) {
+            console.log("result===>", result);
+            return RNFS.unlink(result)
+                .then(() => {
+                    console.log('FILE DELETED');
+                })
+                // `unlink` will throw an error, if the item to unlink does not exist
+                .catch((err) => {
+                    console.log(err.message);
+                });
         }
-        return path[0].split("/").pop();
-    };
-    function getPlatformPath(response) {
-        console.log("getplatfor===>", response)
-        let path = response.assets.map((item) => item.uri)
-        return Platform.select({
-            android: { "value": path[0] },
-            ios: { "value": path[0] }
-        })
-    }
-
-
-    //  Image Picker
-    const launchCamera = () => {
-        let options = {
-            storageOptions: {
-                skipBackup: true,
-                path: 'images',
-            },
-        };
-        launchImageLibrary(options, response => {
-            if (response.didCancel) {
-                console.log('User cancelled image picker', storage());
-            } else if (response.error) {
-                console.log('ImagePicker Error: ', response.error);
-            } else if (response.customButton) {
-                console.log('User tapped custom button: ', response.customButton);
-            } else {
-                let path = getPlatformPath(response).value;
-                let fileName = getFileName(response);
-                setImagesource(fileName)
-                uploadImageToStorage(path, fileName);
-            }
-        });
 
     }
+
+
+
+
 
     return (
         <>
-            {/* {
-                Iconstart ?
-                   : null
-            } */}
 
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: '2%' }}>
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: '3%', borderRadius: 10, borderColor: '#BBBBBB', borderWidth: 1 }} >
@@ -261,17 +254,13 @@ export default function Input() {
                                         value={message}
                                         onChangeText={setMessage}
                                         placeholder={"Message"} />
-                                    <TouchableOpacity onPress={handlePress}>
-                                        <Text style={{ color: '#52624B', fontWeight: 'bold' }} >Send</Text>
-                                    </TouchableOpacity>
-
                                 </View>
                                 :
                                 <View style={{ borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '90%', borderRadius: 10, borderColor: '#BBBBBB' }}>
                                     <View >
-                                        <TouchableOpacity onPress={onCancelRecord}>
+                                        <Pressable onPress={onCancelRecord}>
                                             <Image style={{ width: 30, height: 30, marginLeft: '5%' }} source={require('../../../assets/images/Close.png')} />
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                                     <View style={{ flex: 1, }}>
                                         <Waveform color="#52624B"  {...{ waveform }} />
@@ -285,26 +274,29 @@ export default function Input() {
                 </View>
                 <View style={{ marginTop: '1%', width: 40, alignItems: 'center', justifyContent: 'center', }}>
                     {
-                        !Iconstart ?
+                        message !== '' && !Iconstart ?
                             <View style={{ flex: 1, width: 40, alignSelf: 'center', marginBottom: '10%', borderRadius: 10, borderColor: '#BBBBBB', borderWidth: 1 }}>
-                                <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: '3%', }} onPress={onStartRecord}>
-                                    <Image style={{ width: 30, height: 30, }} source={require('../../../assets/images/Mic.png')} />
-
+                                <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: '3%', }} onPress={handlePress}>
+                                    <Image style={{ width: 30, height: 30, }} source={require(MessageIcon)} />
                                 </TouchableOpacity>
-                            </View> :
-                            <View style={{ flex: 1, alignSelf: 'center', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: 70 }}>
-
-                                <View style={{ width: 40, height: 30, }} >
-                                    <View style={{ borderWidth: 1, borderRadius: 10, borderColor: '#BBBBBB' }} >
-                                        <TouchableOpacity onPress={onStopRecord}>
-                                            <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5, marginTop: 3 }} source={require('../../../assets/images/Send.png')} />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={onStopRecord}>
-                                            <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5 }} source={require('../../../assets/images/Play.png')} />
-                                        </TouchableOpacity>
+                            </View> : !Iconstart ?
+                                <View style={{ flex: 1, width: 40, alignSelf: 'center', marginBottom: '10%', borderRadius: 10, borderColor: '#BBBBBB', borderWidth: 1 }}>
+                                    <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: '3%', }} onPress={onStartRecord}>
+                                        <Image style={{ width: 30, height: 30, }} source={require(MicIcon)} />
+                                    </TouchableOpacity>
+                                </View> :
+                                <View style={{ flex: 1, alignSelf: 'center', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: 70 }}>
+                                    <View style={{ width: 40, height: 30, }} >
+                                        <View style={{ borderWidth: 1, borderRadius: 10, borderColor: '#BBBBBB' }} >
+                                            <TouchableOpacity onPress={onStopRecord}>
+                                                <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5, marginTop: 3 }} source={require(MessageIcon)} />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={audioPause}>
+                                                <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5 }} source={require(PlayIcon)} />
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
 
                     }
                 </View>

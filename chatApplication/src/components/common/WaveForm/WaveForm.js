@@ -21,14 +21,16 @@ const Waveform = (props) => {
         >
             {
                 waveformobj.samples.map((p, i) => (
-                    <View key={`${p}-${i}`} style={{
-                        alignSelf: 'center',
-                        width: 3,
-                        borderRadius: 10,
-                        height: `${p}%`,
-                        margin: 1,
-                        backgroundColor: '#52624B'
-                    }} />
+                    <View
+                        key={`${p}-${i}`}
+                        style={{
+                            alignSelf: 'center',
+                            width: 3,
+                            borderRadius: 10,
+                            height: `${p.amplitude}%`,
+                            margin: 1,
+                            backgroundColor: '#52624B'
+                        }} />
                 ))
             }
 

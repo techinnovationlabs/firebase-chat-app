@@ -1,24 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import { View, Text, Image, ScrollView, Animated } from 'react-native'
+import React, { useEffect, useState, useRef } from 'react'
+import { View, Text, Image, ScrollView, Animated, TouchableOpacity } from 'react-native'
 
 import { styles, flattenedStyles } from './style';
 // import Sound Component
 import Sound from 'react-native-sound';
-import Button from '../common/Button';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 // Audio WaveForm
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
-import SoundCloudWaveform from 'react-native-soundcloud-waveform'
 import Waveform from '../common/WaveForm/WaveForm';
 import waveform from '../common/WaveForm/waveform.json'
 import WaveformInput from '../common/WaveForm/WaveFormInput';
 
+
+
+const audioRecorderPlayer = new AudioRecorderPlayer();
+
 export default function Message({ message, side, imageUri, audiouri, post }) {
 
-    const [audioPlayed, setaudioPlayed] = useState(false)
-
+    const [audioPlayed, setaudioPlayed] = useState(false);
+    const [currentduration, setduration] = useState(0)
+    const childRef = useRef(null);
     const isLeftSide = side === 'left';
-
-
 
 
     const containerStyles = isLeftSide ? styles.container : flattenedStyles.container
@@ -41,34 +43,25 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
 
     }, [])
 
-    const setTrackTime = () => { }
 
 
-    const audioPlay = (uri) => {
-        const sound = new Sound(uri, null, (error) => {
-            if (error) {
-                // do something
-                console.log(error)
-            }
-            // play when loaded
-            setaudioPlayed(true)
-            console.log('executed')
-            sound.play(() => {
-                sound.release();
-            })
-        });
+
+    const audioPlay = async (uri) => {
+
+        const msg = await audioRecorderPlayer.startPlayer(uri)
+
+        console.log(msg)
+        audioRecorderPlayer.addPlayBackListener(async (e) => {
+            // console.log(e.duration)
+            // console.log("current Position===>", e.currentPosition)
+            setduration(e.duration)
+        })
+        childRef.current.showAlert()
     };
 
-    const audioPause = (uri) => {
+    const audioPause = async (uri) => {
         setaudioPlayed(false);
-        const sound = new Sound(uri, null, (error) => {
-            if (error) {
-                console.log(error)
-            }
-            return
-
-        })
-        sound.pause()
+        await audioRecorderPlayer.pausePlayer();
     }
 
     return (
@@ -112,7 +105,7 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
 
                                             <Icon name="pause-circle-o" size={20} color={!isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPause(audiouri)} />
                                             :
-                                            <>
+                                            <TouchableOpacity onPress={() => audioPlay(audiouri)} >
                                                 {
                                                     !isLeftSide ?
                                                         <Image style={{ width: 30, height: 30, margin: '2%' }} source={require('../../../assets/images/Play1.png')} />
@@ -120,15 +113,12 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
                                                         <Image style={{ width: 30, height: 30, margin: '2%' }} source={require('../../../assets/images/Play.png')} />
                                                 }
 
-                                            </>
-                                        //  pause-circle-o
-                                        // <Icon name="play-circle-o" size={20} color={!isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPlay(audiouri)} />
-                                        //   play-circle-o
+                                            </TouchableOpacity>
                                     }
 
                                 </View>
                                 <View style={{ flex: 1, alignItems: 'center' }}>
-                                    <WaveformInput isLeftSide={!isLeftSide}  {...{ waveform }} />
+                                    <WaveformInput isLeftSide={!isLeftSide} currentdurationPlaying={currentduration} playing={childRef}  {...{ waveform }} />
                                 </View>
 
                             </View> :
