@@ -27,13 +27,15 @@ export default class FirebaseService {
         return messages.docs
     }
 
-    async createMessage({ message, uid, imageSource, audiofile }) {
+    async createMessage({ message, uid, imageSource, audiofile, waveFile }) {
         await this.messageRef.add({
             message,
             imageSource,
             audiofile,
+            waveFile,
             user_id: uid,
-            created_at: new Date()
+            created_at: new Date(),
+
         })
     };
 

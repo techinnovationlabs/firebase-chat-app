@@ -7,15 +7,15 @@ import Sound from 'react-native-sound';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 // Audio WaveForm
 import Icon from 'react-native-vector-icons/dist/FontAwesome';
-import Waveform from '../common/WaveForm/WaveForm';
-import waveform from '../common/WaveForm/waveform.json'
 import WaveformInput from '../common/WaveForm/WaveFormInput';
 
 
 
 const audioRecorderPlayer = new AudioRecorderPlayer();
 
-export default function Message({ message, side, imageUri, audiouri, post }) {
+export default function Message({ message, side, imageUri, audiouri, post, waveFile }) {
+
+    let waveform = JSON.parse(waveFile)
 
     const [audioPlayed, setaudioPlayed] = useState(false);
     const [currentduration, setduration] = useState(0)

@@ -78,12 +78,15 @@ export default function Input() {
 
 
     const handlePress = async () => {
+        let waveFile = JSON.stringify(waveform)
+        console.log(waveFile)
         // todo this
         try {
-            await firebaseService.createMessage({ message, uid, imageSource, audiofile }).then(function () {
+            await firebaseService.createMessage({ message, uid, imageSource, audiofile, waveFile }).then(function () {
                 setMessage('')
                 setImagesource('')
                 setaudiofile('')
+
             })
 
         } catch (err) {
@@ -190,6 +193,9 @@ export default function Input() {
         setIconPreview(!IconPreview)
         uploadAudioFile(audiofile, 'hello').then(() => {
             handlePress();
+        }).then(() => {
+            setaudiofile('');
+            waveform.samples.length = 0;
         })
     }
 
@@ -207,7 +213,7 @@ export default function Input() {
                     AVFormatIDKeyIOS: AVEncodingOption.aac,
                 };
 
-                const path = `${Platform.OS === "android" ? "/storage/emulated/0/Download" : RNFS.TemporaryDirectoryPath}/${12}.mp3`;
+                const path = `${Platform.OS === "android" ? "/storage/emulated/0/Download" : RNFS.TemporaryDirectoryPath}/${(Math.random() * 1e32).toString(36)}.mp3`;
 
                 const meteringEnabled = true;
 
@@ -242,7 +248,7 @@ export default function Input() {
                         return;
 
                     } else {
-                        audioPause()
+                        onStopRecord()
                     }
 
 
