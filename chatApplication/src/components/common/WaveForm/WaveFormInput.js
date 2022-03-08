@@ -13,32 +13,35 @@ const WaveformInput = (props) => {
         color: props.color // colors on different chat
     };
     //    AnimatedValuesArray
-    var animateValues = []
+    var animateValues = [];
+
 
     waveformobj.samples.forEach((_, i) => {
         animateValues[i] = new Animated.Value(0.3)
     });
 
-    const animation = (toValue = 1) => {
-        const animations = waveformobj.samples.map((_, i) => {
-            return Animated.timing(animateValues[i], {
-                toValue,
-                duration: 500,
-                useNativeDriver: true
-            })
-        })
-        Animated.stagger(100, animations).start()
-    }
-    // Progress
-    const progress = () => {
-        animation()
-    };
+
+
+
     // onPressHandeling
     useImperativeHandle(
         props.playing,
         () => ({
-            showAlert() {
-                progress()
+            Progress(toValue = 1) {
+                console.log(toValue);
+                const animations = waveformobj.samples.map((_, i) => {
+                    console.log(i)
+                    return Animated.timing(animateValues[i], {
+                        toValue,
+                        duration: 500,
+                        useNativeDriver: true
+                    })
+                })
+                Animated.stagger(100, animations).start(() => {
+                    if (props.playing) {
+                        console.log("Fineshed===>")
+                    }
+                });
             }
         }),
     )
@@ -54,7 +57,6 @@ const WaveformInput = (props) => {
                     flexDirection: 'row',
                     borderRadius: 15,
                 },
-
                 ]}
             >
                 {
@@ -68,7 +70,7 @@ const WaveformInput = (props) => {
                                 borderRadius: 10,
                                 height: `${p.amplitude * 2}%`,
                                 margin: 1,
-                                backgroundColor: '#ffff',
+                                backgroundColor: props.isLeftSide ? '#FFFF' : "#52624B",
                                 opacity: animateValues[i]
                             }]} />
 

@@ -48,18 +48,15 @@ export default function Message({ message, side, imageUri, audiouri, post }) {
 
     const audioPlay = async (uri) => {
 
+
         const msg = await audioRecorderPlayer.startPlayer(uri)
 
         console.log(msg)
         audioRecorderPlayer.addPlayBackListener(async (e,) => {
-            console.log("index===>", e.currentPosition, e.duration)
             let percent = e.currentPosition / e.duration * 100
-
-            console.log("percentage", percent)
-            // console.log("current Position===>", e.currentPosition)
             setduration(e.duration)
         })
-        childRef.current.showAlert()
+        childRef.current.Progress()
     };
 
     const audioPause = async (uri) => {

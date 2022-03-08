@@ -45,11 +45,14 @@ export default function Input() {
     // AudioState
     // Refs for the audio
 
+    //IconStarts
     const [Iconstart, setIconstart] = useState(false)
-    const [recording, setRecording] = useState(false);
+    const [IconPreview, setIconPreview] = useState(false)
+    /*Recording Time */
     const [recordTime, setRecordtime] = useState(0);
-    const [recordSecs, setrecordSecs] = useState(0)
-    const [audiofile, setaudiofile] = useState('')
+    const [recordSecs, setrecordSecs] = useState(0);
+    // audiofile  
+    const [audiofile, setaudiofile] = useState('');
     // States for UI
     const [urlCreated, setUrlCreated] = useState(false);
     const [granted, setgranted] = useState(false)
@@ -138,6 +141,60 @@ export default function Input() {
         checkMicrophone().then(() => setgranted(true))
     }, [])
 
+
+    const onCancelRecord = async () => {
+        const result = await audioRecorderPlayer.stopRecorder();
+        audioRecorderPlayer.removeRecordBackListener();
+        setrecordSecs(0);
+        uploadAudioFile('', '')
+        waveform.samples.length = 0;
+        setIconstart(!Iconstart);
+        setIconPreview(!IconPreview)
+        setaudiofile('');
+
+        if (result) {
+            console.log("result===>", result);
+            return RNFS.unlink(result)
+                .then(() => {
+                    console.log('FILE DELETED');
+                })
+                // `unlink` will throw an error, if the item to unlink does not exist
+                .catch((err) => {
+                    console.log(err.message);
+                });
+        }
+
+    }
+
+
+    const onStopRecord = async () => {
+        const result = await audioRecorderPlayer.stopRecorder();
+        console.log(result)
+        setaudiofile(result)
+
+        audioRecorderPlayer.removeRecordBackListener();
+        setIconPreview(true);
+    };
+
+
+    const audioPlay = async () => {
+        // setaudioPlayed(false);
+        console.log("audioFile===>", audiofile)
+        const msg = await audioRecorderPlayer.startPlayer(audiofile)
+    };
+
+    const SendAudioFile = async () => {
+        // Send Record
+        setrecordSecs(0)
+        setIconstart(!Iconstart)
+        setIconPreview(!IconPreview)
+        uploadAudioFile(audiofile, 'hello').then(() => {
+            handlePress();
+        })
+    }
+
+
+
     const onStartRecord = async () => {
         setIconstart(true);
         if (Platform.OS === 'android' && granted) {
@@ -162,25 +219,33 @@ export default function Input() {
                 console.log("GivenURI===>", uri)
 
                 audioRecorderPlayer.addRecordBackListener((e) => {
-                    // console.log("cureent==>", e)
-                    let value = audioRecorderPlayer.mmss(
-                        // console.log(e.currentPosition)
-                        Math.floor(e.currentPosition)
-                    )
-                    // console.log("Time==>", value)
-                    if (e.currentMetering === -160) {
-                        e.currentMetering = 10;
-                    }
-                    let samples = e.currentMetering * -1
-                    let obj = {
-                        duration: e.currentPosition,
-                        amplitude: samples
-                    }
-                    console.log(obj)
-                    waveform.samples.push(obj)
 
-                    setRecordtime(value)
-                    return;
+                    console.log(e.currentPosition)
+                    if (e.currentPosition < 3000) {
+                        let value = audioRecorderPlayer.mmssss(
+
+                            Math.floor(e.currentPosition)
+                        )
+
+                        //   JSON file Creation
+                        if (e.currentMetering === -160) {
+                            e.currentMetering = 10;
+                        }
+                        let samples = e.currentMetering * -1
+                        let obj = {
+                            duration: e.currentPosition,
+                            amplitude: samples
+                        }
+                        waveform.samples.push(obj)
+                        // Set Record Time
+                        setRecordtime(value)
+                        return;
+
+                    } else {
+                        audioPause()
+                    }
+
+
 
                 })
                 console.log('permissions granted', uri);
@@ -193,48 +258,6 @@ export default function Input() {
 
         }
     };
-    const audioPause = async (uri) => {
-        // setaudioPlayed(false);
-        await audioRecorderPlayer.pauseRecorder();
-    }
-
-
-    const onStopRecord = async () => {
-        const result = await audioRecorderPlayer.stopRecorder();
-        audioRecorderPlayer.removeRecordBackListener();
-        setrecordSecs(0)
-        setIconstart(!Iconstart)
-        // waveform.samples.length = 0;
-        uploadAudioFile(result, 'hello').then(() => {
-            handlePress()
-        })
-        console.log("result===>", result);
-    };
-
-    const onCancelRecord = async () => {
-        const result = await audioRecorderPlayer.stopRecorder();
-        audioRecorderPlayer.removeRecordBackListener();
-        setrecordSecs(0);
-        uploadAudioFile('', 'hello')
-        waveform.samples.length = 0;
-        setIconstart(!Iconstart);
-        setaudiofile('');
-        if (result) {
-            console.log("result===>", result);
-            return RNFS.unlink(result)
-                .then(() => {
-                    console.log('FILE DELETED');
-                })
-                // `unlink` will throw an error, if the item to unlink does not exist
-                .catch((err) => {
-                    console.log(err.message);
-                });
-        }
-
-    }
-
-
-
 
 
     return (
@@ -255,13 +278,15 @@ export default function Input() {
                                         onChangeText={setMessage}
                                         placeholder={"Message"} />
                                 </View>
-                                :
-                                <View style={{ borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '90%', borderRadius: 10, borderColor: '#BBBBBB' }}>
-                                    <View >
-                                        <Pressable onPress={onCancelRecord}>
-                                            <Image style={{ width: 30, height: 30, marginLeft: '5%' }} source={require('../../../assets/images/Close.png')} />
-                                        </Pressable>
-                                    </View>
+                                : <View style={{ borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '90%', borderRadius: 10, borderColor: '#BBBBBB' }}>
+                                    {
+                                        IconPreview ? <View >
+                                            <Pressable onPress={onCancelRecord}>
+                                                <Image style={{ width: 30, height: 30, marginLeft: '5%' }} source={require('../../../assets/images/Close.png')} />
+                                            </Pressable>
+                                        </View> : null
+
+                                    }
                                     <View style={{ flex: 1, }}>
                                         <Waveform color="#52624B"  {...{ waveform }} />
                                     </View>
@@ -279,19 +304,18 @@ export default function Input() {
                                 <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: '3%', }} onPress={handlePress}>
                                     <Image style={{ width: 30, height: 30, }} source={require(MessageIcon)} />
                                 </TouchableOpacity>
-                            </View> : !Iconstart ?
+                            </View> : !IconPreview ?
                                 <View style={{ flex: 1, width: 40, alignSelf: 'center', marginBottom: '10%', borderRadius: 10, borderColor: '#BBBBBB', borderWidth: 1 }}>
-                                    <TouchableOpacity style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: '3%', }} onPress={onStartRecord}>
+                                    <Pressable style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: '3%', }} onPressIn={onStartRecord} onPressOut={onStopRecord} >
                                         <Image style={{ width: 30, height: 30, }} source={require(MicIcon)} />
-                                    </TouchableOpacity>
-                                </View> :
-                                <View style={{ flex: 1, alignSelf: 'center', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: 70 }}>
+                                    </Pressable>
+                                </View> : <View style={{ flex: 1, alignSelf: 'center', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: 70 }}>
                                     <View style={{ width: 40, height: 30, }} >
                                         <View style={{ borderWidth: 1, borderRadius: 10, borderColor: '#BBBBBB' }} >
-                                            <TouchableOpacity onPress={onStopRecord}>
+                                            <TouchableOpacity onPress={SendAudioFile}>
                                                 <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5, marginTop: 3 }} source={require(MessageIcon)} />
                                             </TouchableOpacity>
-                                            <TouchableOpacity onPress={audioPause}>
+                                            <TouchableOpacity onPress={() => audioPlay(audiofile)}>
                                                 <Image style={{ width: 30, height: 30, alignSelf: 'center', marginBottom: 5 }} source={require(PlayIcon)} />
                                             </TouchableOpacity>
                                         </View>
