@@ -66,8 +66,8 @@ const WaveformInput = (props) => {
                             key={`${p}-${i}`}
                             style={[{
                                 alignSelf: 'center',
-                                width: 3,
-                                borderRadius: 10,
+                                width: 2,
+                                borderRadius: 5,
                                 height: `${p.amplitude * 2}%`,
                                 margin: 1,
                                 backgroundColor: props.isLeftSide ? '#FFFF' : "#52624B",

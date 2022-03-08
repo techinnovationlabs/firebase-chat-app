@@ -47,19 +47,16 @@ export default function Message({ message, side, imageUri, audiouri, post, waveF
 
 
     const audioPlay = async (uri) => {
-
-
         const msg = await audioRecorderPlayer.startPlayer(uri)
-
-        console.log(msg)
-        audioRecorderPlayer.addPlayBackListener(async (e,) => {
+        // console.log("msg==>", msg) 
+        audioRecorderPlayer.addPlayBackListener(async (e) => {
             let percent = e.currentPosition / e.duration * 100
             setduration(e.duration)
         })
         childRef.current.Progress()
     };
 
-    const audioPause = async (uri) => {
+    async function audioPause(uri) {
         setaudioPlayed(false);
         await audioRecorderPlayer.pausePlayer();
     }
@@ -102,10 +99,23 @@ export default function Message({ message, side, imageUri, audiouri, post, waveF
                                     <View style={{ flexDirection: 'row', }}>
                                         {
                                             audioPlayed ?
-
-                                                <Icon name="pause-circle-o" size={20} color={!isLeftSide ? '#FFFF' : "#52624B"} style={{ alignSelf: 'flex-end' }} onPress={() => audioPause(audiouri)} />
+                                                <TouchableOpacity onPress={() => {
+                                                    setaudioPlayed(true)
+                                                    audioPause(audiouri)
+                                                }
+                                                } style={{ alignItems: 'center', marginTop: '3%' }}>
+                                                    {
+                                                        !isLeftSide ?
+                                                            <Image style={{ width: 30, height: 30, margin: '1%' }} source={require('../../../assets/images/pauseWhite.png')} />
+                                                            :
+                                                            <Image style={{ width: 30, height: 30, margin: '1%' }} source={require('../../../assets/images/pauseGreen.png')} />
+                                                    }
+                                                </TouchableOpacity>
                                                 :
-                                                <TouchableOpacity onPress={() => audioPlay(audiouri)} >
+                                                <TouchableOpacity onPress={() => {
+                                                    setaudioPlayed(true)
+                                                    audioPlay(audiouri)
+                                                }} >
                                                     {
                                                         !isLeftSide ?
                                                             <Image style={{ width: 30, height: 30, margin: '1%' }} source={require('../../../assets/images/Play1.png')} />
@@ -126,6 +136,6 @@ export default function Message({ message, side, imageUri, audiouri, post, waveF
                             </View> :
                             null
             }
-        </View>
+        </View >
     )
 }

@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef, useContext, useEffect } from 'react'
-import { View, TextInput, Text, Alert, PermissionsAndroid, TouchableOpacity, Image, Pressable } from 'react-native'
+import { View, TextInput, Text, Alert, PermissionsAndroid, TouchableOpacity, Image, Pressable, Vibration } from 'react-native'
 // State
 import { UserContext } from '../../context';
 // Services
@@ -203,6 +203,7 @@ export default function Input() {
 
     const onStartRecord = async () => {
         setIconstart(true);
+        Vibration.vibrate()
         if (Platform.OS === 'android' && granted) {
             try {
                 const AudioSet = {
@@ -226,7 +227,7 @@ export default function Input() {
 
                 audioRecorderPlayer.addRecordBackListener((e) => {
 
-                    console.log(e.currentPosition)
+                    // console.log(e.currentPosition)
                     if (e.currentPosition < 3000) {
                         let value = audioRecorderPlayer.mmssss(
 
@@ -234,25 +235,24 @@ export default function Input() {
                         )
 
                         //   JSON file Creation
-                        if (e.currentMetering === -160) {
-                            e.currentMetering = 10;
+
+                        let samples;
+                        samples = e.currentMetering * -1
+                        // console.log(typeof (samples))
+                        if (samples < 89) {
+                            console.log("Samples2==>", samples)
+                            let obj = {
+                                duration: e.currentPosition,
+                                amplitude: samples
+                            }
+                            waveform.samples.push(obj)
                         }
-                        let samples = e.currentMetering * -1
-                        let obj = {
-                            duration: e.currentPosition,
-                            amplitude: samples
-                        }
-                        waveform.samples.push(obj)
-                        // Set Record Time
+                        //Set Record Time
                         setRecordtime(value)
-                        return;
 
                     } else {
                         onStopRecord()
                     }
-
-
-
                 })
                 console.log('permissions granted', uri);
 
@@ -286,11 +286,12 @@ export default function Input() {
                                 </View>
                                 : <View style={{ borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', width: '90%', borderRadius: 10, borderColor: '#BBBBBB' }}>
                                     {
-                                        IconPreview ? <View >
-                                            <Pressable onPress={onCancelRecord}>
-                                                <Image style={{ width: 30, height: 30, marginLeft: '5%' }} source={require('../../../assets/images/Close.png')} />
-                                            </Pressable>
-                                        </View> : null
+                                        IconPreview ?
+                                            <View >
+                                                <Pressable onPress={onCancelRecord}>
+                                                    <Image style={{ width: 30, height: 30, marginLeft: '5%' }} source={require('../../../assets/images/Close.png')} />
+                                                </Pressable>
+                                            </View> : null
 
                                     }
                                     <View style={{ flex: 1, }}>
@@ -327,7 +328,6 @@ export default function Input() {
                                         </View>
                                     </View>
                                 </View>
-
                     }
                 </View>
             </View>
