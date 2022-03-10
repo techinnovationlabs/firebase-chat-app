@@ -226,19 +226,18 @@ export default function Input() {
                 console.log("GivenURI===>", uri)
 
                 audioRecorderPlayer.addRecordBackListener((e) => {
-
-                    // console.log(e.currentPosition)
-                    if (e.currentPosition < 3000) {
+                    console.log(e.currentPosition)
+                    if (e.currentPosition < 30000) {
                         let value = audioRecorderPlayer.mmssss(
-
                             Math.floor(e.currentPosition)
                         )
 
                         //   JSON file Creation
 
                         let samples;
-                        samples = e.currentMetering * -1
-                        // console.log(typeof (samples))
+                        samples = e.currentMetering / -1
+
+
                         if (samples < 89) {
                             console.log("Samples2==>", samples)
                             let obj = {
@@ -247,8 +246,10 @@ export default function Input() {
                             }
                             waveform.samples.push(obj)
                         }
+                        let removeFirstChar = value.substring(3);
+
                         //Set Record Time
-                        setRecordtime(value)
+                        setRecordtime(removeFirstChar)
 
                     } else {
                         onStopRecord()

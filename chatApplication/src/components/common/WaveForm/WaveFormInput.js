@@ -13,13 +13,30 @@ const WaveformInput = (props) => {
         color: props.color // colors on different chat
     };
     //    AnimatedValuesArray
-    var animateValues = [];
+    let animateValues = [];
+    let animations = [];
 
 
     waveformobj.samples.forEach((_, i) => {
         animateValues[i] = new Animated.Value(0.3)
     });
 
+    async function animate(toValue) {
+        console.log(toValue);
+        animations = await waveformobj.samples.map((_, i) => {
+            return Animated.timing(animateValues[i], {
+                toValue,
+                duration: 1000,
+                useNativeDriver: true
+            })
+        })
+        Animated.stagger(100, animations).start(() => {
+            if (props.playing) {
+                // animations.reset()
+                console.log("Fineshed===>")
+            }
+        });
+    }
 
 
 
@@ -27,57 +44,44 @@ const WaveformInput = (props) => {
     useImperativeHandle(
         props.playing,
         () => ({
-            Progress(toValue = 1) {
-                console.log(toValue);
-                const animations = waveformobj.samples.map((_, i) => {
-                    console.log(i)
-                    return Animated.timing(animateValues[i], {
-                        toValue,
-                        duration: 500,
-                        useNativeDriver: true
-                    })
-                })
-                Animated.stagger(100, animations).start(() => {
-                    if (props.playing) {
-                        console.log("Fineshed===>")
-                    }
-                });
+            Progress() {
+                animate(1)
             }
         }),
     )
 
 
 
-
     return (
-        <View style={{ width: 100, }}>
-            <View
-                style={[{
-                    height: 30,
-                    flexDirection: 'row',
-                    borderRadius: 15,
-                },
-                ]}
-            >
-                {
-                    waveformobj.samples.map((p, i) => (
+        <ScrollView
+            contentContainerStyle={{
+                alignContent: 'center',
+                width: '100%',
+                height: 20,
+                marginTop: '5%',
+                flexDirection: 'row',
+                borderRadius: 15,
+            }}
+        >
 
-                        <Animated.View
-                            key={`${p}-${i}`}
-                            style={[{
-                                alignSelf: 'center',
-                                width: 2,
-                                borderRadius: 5,
-                                height: `${p.amplitude * 2}%`,
-                                margin: 1,
-                                backgroundColor: props.isLeftSide ? '#FFFF' : "#52624B",
-                                opacity: animateValues[i]
-                            }]} />
+            {
+                waveformobj.samples.map((p, i) => (
 
-                    ))
-                }
-            </View>
-        </View>
+                    <Animated.View
+                        key={`${p}-${i}`}
+                        style={[{
+                            alignSelf: 'center',
+                            width: 2,
+                            borderRadius: 5,
+                            height: `${p.amplitude * 2}%`,
+                            margin: 1,
+                            backgroundColor: props.isLeftSide ? '#FFFF' : "#52624B",
+                            opacity: animateValues[i]
+                        }]} />
+
+                ))
+            }
+        </ScrollView>
     );
 }
 

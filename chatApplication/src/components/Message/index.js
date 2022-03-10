@@ -129,7 +129,7 @@ export default function Message({ message, side, imageUri, audiouri, post, waveF
                                 </View>
 
                                 <View style={{ flex: 3, height: '100%' }} >
-                                    <WaveformInput isLeftSide={!isLeftSide} currentdurationPlaying={currentduration} playing={childRef}  {...{ waveform }} />
+                                    <WaveformInput isLeftSide={!isLeftSide} currentdurationPlaying={currentduration} playing={childRef} toValue={1}  {...{ waveform }} />
                                 </View>
 
 
