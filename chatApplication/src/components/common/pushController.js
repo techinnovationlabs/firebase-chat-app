@@ -14,10 +14,10 @@ PushNotification.configure({
 
 export const LocalNotification = () => {
     PushNotification.localNotification({
-        message: "My Notification Message", // (required)
+        message: 'My Notification Message', // (required)
         date: new Date(Date.now() + 60 * 1000), // in 60 secs
         // allowWhileIdle: false, // (optional) set notification to work while on doze, default: false
-        channelId: "channel-id",
+        channelId: 'channel-id',
         /* Android Only Properties */
         // repeatTime: 1,
     });

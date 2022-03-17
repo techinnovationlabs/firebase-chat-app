@@ -95,7 +95,7 @@ export default function Message({ message, side, imageUri, audiouri, post, waveF
                             <Text style={textStyles}>Someone Liked !!</Text>
                         </View> : audiouri ?
                             <View style={[textContainerStyles, { alignItems: 'flex-start', justifyContent: 'space-around', flexDirection: 'row', width: '50%' }]}>
-                                <View style={{ flex: 1, }} >
+                                {/* <View style={{ flex: 1, }} >
                                     <View style={{ flexDirection: 'row', }}>
                                         {
                                             audioPlayed ?
@@ -126,7 +126,7 @@ export default function Message({ message, side, imageUri, audiouri, post, waveF
                                         }
 
                                     </View>
-                                </View>
+                                </View> */}
 
                                 <View style={{ flex: 3, height: '100%' }} >
                                     <WaveformInput isLeftSide={!isLeftSide} currentdurationPlaying={currentduration} playing={childRef} toValue={1}  {...{ waveform }} />
